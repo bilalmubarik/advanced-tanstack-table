@@ -1,5 +1,9 @@
-.App {
-  text-align: center;
+*:focus {
+    box-shadow: none !important;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 .App-logo {
