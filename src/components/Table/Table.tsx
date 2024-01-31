@@ -77,7 +77,7 @@ export const Table = ({ columns, data, config = {} }: TableProps) => {
       </div>
       <div className="row mt-3">
         <div className="col">
-          <table className="table table-bordered table-striped">
+          <table className="table table-bordered table-striped table-responsive">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -96,20 +96,24 @@ export const Table = ({ columns, data, config = {} }: TableProps) => {
                           {...(config?.isDisplaySorting && {
                             className: header.column.getCanSort()
                               ? 'pointer'
-                              : '',
-                            onClick: header.column.getToggleSortingHandler()
+                              : ''
                           })}
                         >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                          {(config?.isDisplaySorting &&
-                            {
-                              asc: <IconArrowUp size="15" />,
-                              desc: <IconArrowDown size="15" />
-                            }[header.column.getIsSorted() as string]) ??
-                            null}
+                          <span
+                            className="d-block mb-1"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {(config?.isDisplaySorting &&
+                              {
+                                asc: <IconArrowUp size="15" />,
+                                desc: <IconArrowDown size="15" />
+                              }[header.column.getIsSorted() as string]) ??
+                              null}
+                          </span>
                           {config?.isDisplayColumnResize && (
                             <div
                               {...{
