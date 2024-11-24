@@ -1,5 +1,5 @@
 import React from 'react';
-import { DebouncedInput } from '../DebouncedInput';
+import { DebouncedInput } from './Form/DebouncedInput';
 import { Column, Table } from '@tanstack/react-table';
 
 export const ColumnFilters = ({
@@ -31,7 +31,7 @@ export const ColumnFilters = ({
             type="number"
             min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
             max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
-            value={(columnFilterValue as [number, number])?.[0] ?? ''}
+            value={(columnFilterValue as string)?.[0] ?? ''}
             onChange={(value: any) =>
               column.setFilterValue((old: [number, number]) => [
                 value,
@@ -50,7 +50,7 @@ export const ColumnFilters = ({
             type="number"
             min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
             max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
-            value={(columnFilterValue as [number, number])?.[1] ?? ''}
+            value={(columnFilterValue as string)?.[1] ?? ''}
             onChange={(value: any) =>
               column.setFilterValue((old: [number, number]) => [
                 old?.[0],
@@ -78,7 +78,7 @@ export const ColumnFilters = ({
         value={(columnFilterValue ?? '') as string}
         onChange={(value: any) => column.setFilterValue(value)}
         placeholder="Search..."
-        list={column.id + 'list'}
+        // list={column.id + 'list'}
       />
     </>
   );

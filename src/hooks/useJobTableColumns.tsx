@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { captilizeFirstLetter } from '../utils';
+import { captilizeFirstLetter, truncateString } from '../utils';
 import { type TJob } from '../types';
 
 export const useJobTableColumns = () => {
@@ -13,7 +13,7 @@ export const useJobTableColumns = () => {
     }),
     columnHelper.accessor('description', {
       header: () => 'Description',
-      cell: (info) => info.getValue(),
+      cell: (info) => truncateString(info.getValue()),
       footer: (info) => info.column.id
     }),
     columnHelper.accessor('salary', {

@@ -1,24 +1,30 @@
 import React from 'react';
 import {
-  flexRender,
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel
 } from '@tanstack/react-table';
-import { IconArrowUp, IconArrowDown } from '@tabler/icons-react';
+import TableBody from '@mui/material/TableBody';
+
 import { type TJob, type TTableConfig } from '../../types';
-import {
-  ShowHideColumns,
-  Pagination,
-  GlobalSearch,
-  ColumnFilters
-} from './components';
+import { Pagination, Row, Header, PinnedRow, TableHeader } from './components';
 import { useApplyGlobalSearch } from './config/useApplyGlobalSearch';
 import { useApplyColumnVisibility } from './config/useApplyColumnVisibility';
 import { useApplyColumnResize } from './config/useApplyColumnResize';
 import { useApplySorting } from './config/useApplySorting';
 import { useApplyColumnFiltering } from './config/useApplyColumnFiltering';
+import { useApplyRowPinning } from './config/useApplyRowPinning';
+import { useRowSelection } from './config/useRowSelection';
+import { useApplyRowActions } from './config/useApplyRowActions';
 import './Table.scss';
+import {
+  TableContainerStyled,
+  TableStyled,
+  FooterStyled,
+  TableRowStyled,
+  TableCellStyled,
+  TableHeaderCellStyled
+} from '../../styles/main';
 
 interface TableProps {
   columns: any;
@@ -31,7 +37,14 @@ const defaultConfig = {
   isDisplayHideColumns: true,
   isDisplayColumnResize: true,
   isDisplaySorting: true,
-  isDisplayColumnFiltering: true
+  isDisplayColumnFiltering: false,
+  isDisplayRowPinning: true,
+  isDisplayRowSelection: true,
+  actions: {
+    pinning: true,
+    editing: true,
+    deleting: true
+  }
 };
 
 export const Table = ({ columns, data, config = {} }: TableProps) => {
@@ -67,115 +80,31 @@ export const Table = ({ columns, data, config = {} }: TableProps) => {
   if (config?.isDisplayColumnFiltering) {
     tableConfig = useApplyColumnFiltering(tableConfig);
   }
+  if (config?.isDisplayRowSelection) {
+    tableConfig = useRowSelection(tableConfig);
+  }
+  if (config?.isDisplayRowPinning) {
+    tableConfig = useApplyRowActions({ tableConfig, config });
+  }
 
   const table = useReactTable(tableConfig);
   return (
-    <div className="container mt-5">
-      <div className="d-flex justify-content-between">
-        {config?.isDisplayGlobalSearch && <GlobalSearch {...table} />}
-        {config?.isDisplayHideColumns && <ShowHideColumns {...table} />}
-      </div>
-      <div className="row mt-3">
-        <div className="col">
-          <table className="table table-bordered table-striped">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      {...{
-                        colSpan: header.colSpan,
-                        style: {
-                          width: header.getSize()
-                        }
-                      }}
-                    >
-                      {header.isPlaceholder ? null : (
-                        <div
-                          {...(config?.isDisplaySorting && {
-                            className: header.column.getCanSort()
-                              ? 'pointer'
-                              : '',
-                            onClick: header.column.getToggleSortingHandler()
-                          })}
-                        >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                          {(config?.isDisplaySorting &&
-                            {
-                              asc: <IconArrowUp size="15" />,
-                              desc: <IconArrowDown size="15" />
-                            }[header.column.getIsSorted() as string]) ??
-                            null}
-                          {config?.isDisplayColumnResize && (
-                            <div
-                              {...{
-                                onDoubleClick: () => header.column.resetSize(),
-                                onMouseDown: header.getResizeHandler(),
-                                onTouchStart: header.getResizeHandler(),
-                                className: `resizer ${
-                                  table.options.columnResizeDirection
-                                } ${
-                                  header.column.getIsResizing()
-                                    ? 'isResizing'
-                                    : ''
-                                }`
-                              }}
-                            />
-                          )}
-                          {config?.isDisplayColumnFiltering &&
-                          header.column.getCanFilter() ? (
-                            <div>
-                              <ColumnFilters
-                                column={header.column}
-                                table={table}
-                              />
-                            </div>
-                          ) : null}
-                        </div>
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              {table.getFooterGroups().map((footerGroup) => (
-                <tr key={footerGroup.id}>
-                  {footerGroup.headers.map((header) => (
-                    <th key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.footer,
-                            header.getContext()
-                          )}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </tfoot>
-          </table>
-        </div>
+    <TableContainerStyled>
+      <Header table={table} config={config} />
+      <TableStyled>
+        <TableHeader table={table} config={config} />
+        <tbody>
+          {table.getTopRows().map((row) => (
+            <PinnedRow key={row.id} row={row} />
+          ))}
+          {table.getCenterRows().map((row) => (
+            <Row key={row.id} row={row} />
+          ))}
+        </tbody>
+      </TableStyled>
+      <FooterStyled>
         <Pagination table={table} />
-      </div>
-    </div>
+      </FooterStyled>
+    </TableContainerStyled>
   );
 };
